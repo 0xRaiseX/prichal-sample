@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Работает — задеплоено через Prichal</title>
+<meta name="description" content="Приложение-образец Prichal: если вы видите эту страницу, деплой прошёл и приложение доступно из сети.">
+<!-- Иконка встроена: страница не должна тянуть ни одного внешнего файла,
+     иначе «работает» будет зависеть от чужого сервера. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: rgba(255,255,255,.035);
+    --line: rgba(255,255,255,.09);
+    --text: #e8edf3;
+    --muted: #7d8b9c;
+    --live: #37d67a;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  /* Мягкое свечение за карточкой — единственный декоративный элемент. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -40% 20% 40% -20%;
+    background: radial-gradient(50% 50% at 30% 40%, rgba(90,169,255,.16), transparent 70%),
+                radial-gradient(40% 40% at 75% 65%, rgba(55,214,122,.10), transparent 70%);
+    pointer-events: none;
+  }
+  main {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 14px 7px 11px;
+    border: 1px solid rgba(55,214,122,.28);
+    border-radius: 999px;
+    background: rgba(55,214,122,.07);
+    color: var(--live);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .02em;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 0 0 rgba(55,214,122,.55);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    70%  { box-shadow: 0 0 0 9px rgba(55,214,122,0); }
+    100% { box-shadow: 0 0 0 0 rgba(55,214,122,0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  h1 {
+    margin: 22px 0 10px;
+    font-size: clamp(38px, 8vw, 60px);
+    line-height: 1.04;
+    letter-spacing: -.03em;
+    font-weight: 640;
+  }
+  .lede {
+    margin: 0 0 30px;
+    color: var(--muted);
+    font-size: clamp(15px, 2.6vw, 17px);
+    max-width: 46ch;
+  }
+  .host {
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .93em;
+    word-break: break-all;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .fact {
+    background: #0d1219;
+    padding: 15px 16px 16px;
+    min-width: 0;
+  }
+  .fact dt {
+    margin: 0 0 5px;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+  }
+  .fact dd {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  footer {
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+  }
+  footer p { margin: 0 0 8px; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .88em;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: var(--text);
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+  <span class="badge"><span class="dot" aria-hidden="true"></span>Приложение работает</span>
+
+  <h1>Вы в проде</h1>
+
+  <p class="lede">
+    Эту страницу отдаёт ваш контейнер в кластере Prichal.
+    Адрес: <span class="host" id="host">—</span>
+  </p>
+
+  <dl class="facts">
+    <div class="fact"><dt>Инстанс</dt><dd id="instance">—</dd></div>
+    <div class="fact"><dt>Аптайм</dt><dd id="uptime">—</dd></div>
+    <div class="fact"><dt>Node.js</dt><dd id="node">—</dd></div>
+    <div class="fact"><dt>Запросов</dt><dd id="requests">—</dd></div>
+    <div class="fact"><dt>Запущено</dt><dd id="started">—</dd></div>
+    <div class="fact"><dt>Коммит</dt><dd id="commit">—</dd></div>
+  </dl>
+
+  <footer>
+    <p>
+      Поменяйте текст в <code>public/index.html</code>, запушьте в ветку —
+      Prichal пересоберёт и выкатит сам.
+    </p>
+    <p>
+      Живые данные: <a href="/api/info">/api/info</a> · проба: <a href="/health">/health</a>
+    </p>
+  </footer>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Аптайм в человеческом виде. Секунды показываем всегда: на свежем деплое
+  // «0 м» выглядит как сломанный счётчик, а «7 с» — как живой.
+  const human = (s) => {
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (d) return `${d} д ${h} ч`;
+    if (h) return `${h} ч ${m} м`;
+    if (m) return `${m} м ${sec} с`;
+    return `${sec} с`;
+  };
+
+  let uptime = 0;
+
+  async function refresh() {
+    try {
+      const r = await fetch('/api/info', { cache: 'no-store' });
+      if (!r.ok) return;
+      const d = await r.json();
+      uptime = d.uptimeSeconds;
+      $('instance').textContent = d.instance;
+      $('node').textContent = d.node;
+      $('requests').textContent = d.requests;
+      $('started').textContent = new Date(d.startedAt).toLocaleString('ru-RU');
+      // Прочерк, а не выдуманное значение: коммит появится, только если его
+      // передали в переменных окружения.
+      $('commit').textContent = d.commit ? d.commit.slice(0, 7) : '—';
+    } catch { /* сеть моргнула — покажем прежние значения, не роняя страницу */ }
+  }
+
+  $('host').textContent = location.host;
+  // Секундная стрелка идёт локально, чтобы аптайм тикал без запроса в секунду.
+  setInterval(() => { uptime += 1; $('uptime').textContent = human(uptime); }, 1000);
+  refresh();
+  setInterval(refresh, 5000);
+</script>
+</body>
+</html>

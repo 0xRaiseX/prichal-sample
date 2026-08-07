@@ -1,0 +1,15 @@
+{
+  "name": "prichal-sample",
+  "version": "1.0.0",
+  "description": "Минимальное приложение-образец для Prichal: деплоится за минуту и показывает, что оно живое",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
